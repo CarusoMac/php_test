@@ -106,15 +106,7 @@ $seznam_odpovedi = mysqli_query($conn, $query_odpovedi);
         ?>
             <tr>
               <td> <?php echo $row['odpoved']; ?> </td>
-              <td>
 
-                <a href="zpracuj_hlasovani.php?id=
-              <?php echo $row['id_odpoved']
-              ?>
-              " class="btn btn-outline-primary">Hlasuj</a>
-
-
-              </td>
             </tr>
         <?php }
         } else {
