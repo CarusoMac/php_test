@@ -2,47 +2,58 @@
 
 require_once "db_connection.php";
 
-#getting the id
-$id = htmlspecialchars($_GET['id']) ?? null;
+if (isset($_GET['id'])) {
+  #getting the id
+  $id = htmlspecialchars($_GET['id']) ?? null;
 
-#script pro vypis otazky
-//declaring the variables
+  #script pro vypis otazky
+  //declaring the variables
+
+
+} else {
+  $id = (int)(htmlspecialchars($_POST['questId']));
+  #script pro vypis otazky
+  //declaring the variables
+
+}
 
 $query = "SELECT * FROM otazky where id_otazka = $id";
-
 $result = mysqli_query($conn, $query);
-
 #script pro vkladani odpovedi
 $errors = [];
 $odpoved =  '';
 
-if (($_SERVER['REQUEST_METHOD'] === 'POST') && (isset($_POST['submit']))) {
-  $odpoved =  addslashes($_POST['odpoved']);
-
-  if (!$odpoved) {
-    $errors[] = 'Zadani odpovedi je povinna polozka';
-  };
 
 
-  if (empty($errors)) {
-    $sql = "INSERT INTO odpovedi (id_otazka, odpoved) 
-    VALUES('$id', '$odpoved')";
 
-    if (mysqli_query($conn, $sql)) {
-      echo "Odpoved byla uspesne vlozena do DB";
-    } else {
-      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-    }
-  }
-}
-
-#script pro vypis odpovedi
 
 #script pro vypis seznamu otazek
 //declaring the variables
 
 $query_odpovedi = "SELECT * FROM odpovedi where id_otazka = $id";
 $seznam_odpovedi = mysqli_query($conn, $query_odpovedi);
+
+#script pro zapis odpovedi
+if (isset($_POST['odpoved'])) {
+  $odpoved =  addslashes($_POST['odpoved']);
+  if (!$odpoved) {
+    $errors[] = 'Zadani odpovedi je povinna polozka';
+  };
+
+
+  if (empty($errors)) {
+    $sql = "INSERT INTO odpovedi (odpoved, id_otazka, pocet_hlasu) 
+VALUES('$odpoved', '$id', '0')";
+
+    if (mysqli_query($conn, $sql)) {
+      echo "odpoved byla uspesne vlozena do DB";
+      header("Location:detail.php?id=$id");
+    } else {
+      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+  }
+}
+
 
 ?>
 
@@ -119,14 +130,20 @@ $seznam_odpovedi = mysqli_query($conn, $query_odpovedi);
     <h2>Vlozeni nove odpovedi</h2>
 
 
-    <form action="" method="post">
+    <form action="detail.php" method="post">
 
 
       <div class="mb-4">
         <textarea name="odpoved" placeholder="Sem vlozte odpoved"></textarea>
       </div>
+      <input type="hidden" name="questId" value=<?php echo "$id" ?>>
+      <input type="submit" name="odpoved_sub" class="btn btn-success" value="Vlozit odpoved">
 
-      <button type="submit" name="submit" class="btn btn-success">Vlozit odpoved</button>
+
+
+
+
+
 
     </form>
 
