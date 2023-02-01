@@ -1,53 +1,23 @@
 <?php
 require_once "db_connection.php";
-?>
 
-<?php
-#script pro vkladani otazek
-//declaring the variables
 $errors = [];
 $otazka =  '';
 
-
 #Hlasovani
 if (isset($_GET['id'])) {
-  $id_hlasovani = htmlspecialchars($_GET['id']);
+  $id_hlasovani = addslashes($_GET['id']);
   $query_hlasovani = "UPDATE odpovedi SET pocet_hlasu = pocet_hlasu + 1 WHERE id_odpoved = $id_hlasovani";
   $result_hlasovani = mysqli_query($conn, $query_hlasovani);
   header('Location:quest_answ.php');
 }
 
-
-if (($_SERVER['REQUEST_METHOD'] === 'POST') && (isset($_POST['submit']))) {
-  $otazka =  addslashes($_POST['otazka']);
-
-  if (!$otazka) {
-    $errors[] = 'Zadani otazky je povinna polozka';
-  };
-
-
-  if (empty($errors)) {
-    $sql = "INSERT INTO otazky (otazka) 
-    VALUES('$otazka')";
-
-    if (mysqli_query($conn, $sql)) {
-      echo "Otazka byla uspesne vlozena do DB";
-    } else {
-      echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-    }
-  }
-}
-
-
 ?>
 
 <?php
 #script pro vypis seznamu otazek
-//declaring the variables
-
 $query = "SELECT * FROM otazky";
 $result = mysqli_query($conn, $query);
-
 ?>
 
 
@@ -58,12 +28,12 @@ $result = mysqli_query($conn, $query);
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pridavani</title>
+  <title>Anketa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 </head>
 
 <body>
-  <a href="questions.php" class="btn btn-secondary m-5">Otázky</a>
+  <a href="questions.php" class="btn btn-secondary m-5">Anketní otázky = admin</a>
   <div class="container">
     <h1 class="mb-5">Anketa</h1>
 
@@ -74,25 +44,19 @@ $result = mysqli_query($conn, $query);
       <?php
 
       if (mysqli_num_rows($result) > 0) {
-        // Print the list of questions
-
         while ($row = mysqli_fetch_assoc($result)) {
 
       ?>
 
           <thead>
             <tr>
-
               <th scope="col"><?php echo $row['otazka']; ?></th>
               <th scope="col">Pocet hlasu</th>
-
             </tr>
           </thead>
+
           <tbody>
-
-
-
-            <!-- start -->
+            <!-- odpovedi k dane otazce -->
             <?php
             $id_otazka = $row['id_otazka'];
             $query2 = "SELECT * FROM odpovedi WHERE id_otazka = $id_otazka";
@@ -107,25 +71,17 @@ $result = mysqli_query($conn, $query);
               </tr>
             <?php }
             ?>
-            <!-- konec -->
+            <!-- konec vnorene smycky -->
 
           </tbody>
-
-
       <?php }
       } else {
-        echo "No products found in the database.";
+        echo "Zaznam byl smazan";
       }
       ?>
 
-
-
     </table>
-
-
-
   </div>
-
 </body>
 
 </html>

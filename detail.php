@@ -2,48 +2,36 @@
 
 require_once "db_connection.php";
 
+#getting the question id
 if (isset($_GET['id'])) {
-  #getting the id
+
   $id = htmlspecialchars($_GET['id']) ?? null;
-
   #script pro vypis otazky
-  //declaring the variables
-
-
 } else {
   $id = (int)(htmlspecialchars($_POST['questId']));
-  #script pro vypis otazky
-  //declaring the variables
-
 }
 
 $query = "SELECT * FROM otazky where id_otazka = $id";
 $result = mysqli_query($conn, $query);
-#script pro vkladani odpovedi
+
+# default k formulari
 $errors = [];
 $odpoved =  '';
 
-
-
-
-
-#script pro vypis seznamu otazek
-//declaring the variables
-
+#script pro vypis seznamu odpovedi
 $query_odpovedi = "SELECT * FROM odpovedi where id_otazka = $id";
 $seznam_odpovedi = mysqli_query($conn, $query_odpovedi);
 
-#script pro zapis odpovedi
+#script pro vkladani odpovedi
 if (isset($_POST['odpoved'])) {
   $odpoved =  addslashes($_POST['odpoved']);
   if (!$odpoved) {
-    $errors[] = 'Zadani odpovedi je povinna polozka';
+    $errors[] = 'Nevlozili jste zadnou odpoved';
   };
-
 
   if (empty($errors)) {
     $sql = "INSERT INTO odpovedi (odpoved, id_otazka, pocet_hlasu) 
-VALUES('$odpoved', '$id', '0')";
+                          VALUES('$odpoved', '$id', '0')";
 
     if (mysqli_query($conn, $sql)) {
       echo "odpoved byla uspesne vlozena do DB";
@@ -56,6 +44,9 @@ VALUES('$odpoved', '$id', '0')";
 
 
 ?>
+<!-- *********************************************************************************************** -->
+<!-- -------------------------------------------HTML------------------------------------------------ -->
+<!-- *********************************************************************************************** -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -69,84 +60,71 @@ VALUES('$odpoved', '$id', '0')";
 </head>
 
 <body>
-  <a href="questions.php" class="btn btn-secondary m-5">Zpet na vypis</a>
+  <a href="questions.php" class="btn btn-secondary m-5">Anketní otázky = admin</a>
+  <a href="quest_answ.php" class="btn btn-secondary m-5">Anketa = user</a>
+
   <div class="container">
 
+    <!-- print otazky -->
     <h1 class="mb-4">Otazka</h1>
-
-
     <table class="table mb-5">
-
-
       <tbody>
+
         <?php
-
         if (mysqli_num_rows($result) > 0) {
-          // Print the list of questions
-
           while ($row = mysqli_fetch_assoc($result)) {
-
         ?>
+
             <tr>
               <td> <?php echo $row['otazka']; ?> </td>
               <td> <?php echo $row['id_otazka']; ?> </td>
-
             </tr>
+
         <?php }
         } else {
-          echo "V databazi nebyla zadana zadna otazka";
+          echo "Otazka nenalezena";
         }
         ?>
 
-
       </tbody>
     </table>
+
+    <!-- print odpovedi z DB -->
+
     <h2 class="mb-4">Stavajici odpovedi</h2>
-
-
     <table class="table mb-5">
-
       <tbody>
+
         <?php
-
         if (mysqli_num_rows($seznam_odpovedi) > 0) {
-          // Print the list of questions
-
           while ($row = mysqli_fetch_assoc($seznam_odpovedi)) {
-
         ?>
             <tr>
               <td> <?php echo $row['odpoved']; ?> </td>
-
             </tr>
+
         <?php }
         } else {
           echo "Zatim bez odpovedi";
         }
         ?>
+
       </tbody>
     </table>
 
-    <h2>Vlozeni nove odpovedi</h2>
+    <!-- formular -->
 
+    <h2>Vlozeni nove odpovedi</h2>
 
     <form action="detail.php" method="post">
 
-
       <div class="mb-4">
-        <textarea name="odpoved" placeholder="Sem vlozte odpoved"></textarea>
+        <textarea name="odpoved" placeholder="Sem vlozte odpoved" rows="4" cols="50"></textarea>
       </div>
       <input type="hidden" name="questId" value=<?php echo "$id" ?>>
       <input type="submit" name="odpoved_sub" class="btn btn-success" value="Vlozit odpoved">
 
-
-
-
-
-
-
     </form>
-
 
   </div>
 
